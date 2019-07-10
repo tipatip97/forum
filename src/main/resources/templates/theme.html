@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta title="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>themes</title>
+</head>
+<body>
+
+<div class="container-fluid" style="margin-top: 10px;">
+    <div class="row" style="background-color: lightskyblue; margin: 5px 0 5px; height: 50px;">
+        <div class="col-3" th:text="'Создатель темы: ' + ${author}">Автор</div>
+        <div class="col-8" style="" th:text="'Название темы: ' + ${themeName}">Название</div>
+    </div>
+
+    <div class="row" style="background-color: aliceblue; margin: 5px 0 5px">
+        <div style="font-weight: bold" class="col-1">Автор</div>
+        <div style="font-weight: bold" class="col-9">Текст сообщения</div>
+        <div style="font-weight: bold" class="col-1">Дата</div>
+    </div>
+
+    <div class="row" style="background-color: aliceblue; margin: 5px 0 5px" th:each="message: ${messages}" th:object="${message}">
+        <div class="col-1" th:text="*{getAuthor().getUsername()}">Автор</div>
+        <div class="col-9" style="white-space:pre-wrap" th:text="*{getText()}">Текст сообщения</div>
+        <div class="col-1" th:text="*{getDate()} != null ? *{getDate().toLocaleString()} : ''">Дата</div>
+        <div class="col-1" >
+            <form th:action="@{'/delete-message/' + ${themeId} + '/' + ${message.getId()}}" method="get">
+                <button class="btn btn-danger">Удалить</button>
+            </form>
+        </div>
+    </div>
+
+
+    <form class="form-inline" style="margin-top: 20px" th:action="@{'/new-message/' + ${themeId}}" method="post">
+        <div class="form-group col-10">
+            <label for="text">Текст сообщения</label>
+            <textarea class="form-control col-12" id="text" name="text"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Отправить</button>
+    </form>
+
+
+</div>
+
+
+</body>
+</html>

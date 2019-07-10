@@ -22,9 +22,6 @@ public class Message {
     @Column
     private Boolean removed;
 
-    @ManyToOne(targetEntity = Theme.class)
-    private Theme theme;
-
     public Long getId() {
         return id;
     }
@@ -63,13 +60,5 @@ public class Message {
 
     public void setRemoved(Boolean removed) {
         this.removed = removed;
-    }
-
-    public Theme getTheme() {
-        return theme;
-    }
-
-    public void setTheme(Theme theme) {
-        this.theme = theme;
     }
 }
