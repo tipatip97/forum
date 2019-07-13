@@ -1,35 +1,31 @@
-package ru.pon.demo.entity;
+package ru.pon.demo.model;
 
-import javax.persistence.*;
+import ru.pon.demo.model.validator.PasswordMatches;
+import ru.pon.demo.model.validator.ValidPassword;
 
-@Entity(name = "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
-    @Column
-    private String username;
+@PasswordMatches
+public class UserDTO {
 
-    @Column
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @Column(name = "first_name")
+    @NotNull
+    @NotEmpty
     private String firstName;
 
-    @Column(name = "last_name")
+    @NotNull
+    @NotEmpty
     private String lastName;
 
-    public Long getId() {
-        return id;
-    }
+    @NotNull
+    @NotEmpty
+    private String username;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @NotNull
+    @NotEmpty
+    @ValidPassword
+    private String password;
+    private String matchingPassword;
 
     public String getFirstName() {
         return firstName;
@@ -63,13 +59,11 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public String getMatchingPassword() {
+        return matchingPassword;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setMatchingPassword(String matchingPassword) {
+        this.matchingPassword = matchingPassword;
     }
 }
-
-

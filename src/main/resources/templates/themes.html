@@ -3,47 +3,84 @@
       xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta title="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
+    <div th:replace="fragments/header :: header-css"/>
     <title>themes</title>
 </head>
 <body>
 
+<div th:replace="fragments/header :: header"></div>
 
 
 <div class="container-fluid" style="margin-top: 10px;">
 
-    <div style="margin: 10px 0 5px">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalLive">
-            Новая тема
-        </button>
+    <div th:fragment="new-theme-and-pagination" class="row">
+        <div class="col">
+            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModalLive">
+                Новая тема
+            </button>
+        </div>
+
+        <nav aria-label="Page navigation example" class="col align-self-end">
+            <ul class="pagination justify-content-end">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+
     </div>
 
-    <div class="row" style="background-color: skyblue; margin: 5px 0 5px">
-        <div class="col-2" style="font-weight: bold">Название темы</div>
-        <div class="col-2" style="font-weight: bold">Автор</div>
-        <div class="col-5" style="font-weight: bold">Текст последнего сообщения</div>
-        <div class="col-2" style="font-weight: bold">Дата</div>
+
+    <div class="row" style="background-color: skyblue;">
+        <div class="col-2" style="font-weight: bold; padding-top: 10px; padding-bottom: 10px;">Название темы</div>
+        <div class="col-2" style="font-weight: bold; padding-top: 10px; padding-bottom: 10px;">Автор</div>
+        <div class="col-5" style="font-weight: bold; padding-top: 10px; padding-bottom: 10px;">Текст последнего
+            сообщения
+        </div>
+        <div class="col-2" style="font-weight: bold; padding-top: 10px; padding-bottom: 10px;">Дата</div>
     </div>
 
-    <a class="row" style="background-color: aliceblue; margin: 5px 0 5px" th:each="theme: ${themes}" th:href="@{'/theme/' + ${theme.getId()}}" th:object="${theme}">
-        <div class="col-2" th:text="*{getTitle()}">Название темы</div>
-        <div class="col-2" th:text="*{getAuthor().getUsername()}">Автор</div>
-        <div class="col-5" th:text="*{getLastNotRemovedMessageOrNull()} != null ? *{getLastNotRemovedMessageOrNull().getText()} : ''">Текст последнего сообщения</div>
-        <div class="col-2" th:text="*{getLastNotRemovedMessageOrNull()} != null ? (*{getLastNotRemovedMessageOrNull().getDate()} != null ? *{getLastNotRemovedMessageOrNull().getDate().toLocaleString()} : '') : *{getDate().toLocaleString()}">Дата</div>
-    </a>
+    <div style="margin-bottom: 20px">
+        <a class="row" style="background-color: aliceblue; margin: 5px 0 5px" th:each="theme: ${themes}"
+           th:href="@{'/theme/' + ${theme.getId()}}" th:object="${theme}">
+            <div class="col-2" style="padding-top: 5px; padding-bottom: 5px;" th:text="*{getTitle()}">Название темы
+            </div>
+            <div class="col-2" style="padding-top: 5px; padding-bottom: 5px;"
+                 th:text="*{getAuthor().getFirstName() + ' ' + getAuthor().getLastName()}">Автор
+            </div>
+            <div class="col-4" style="padding-top: 5px; padding-bottom: 5px;"
+                 th:text="*{getLastNotRemovedMessageOrNull()} != null ? *{getLastNotRemovedMessageOrNull().getText()} : ''">
+                Текст последнего сообщения
+            </div>
+            <div class="col-2" style="padding-top: 5px; padding-bottom: 5px;"
+                 th:text="*{getLastNotRemovedMessageOrNull()} != null ? (*{getLastNotRemovedMessageOrNull().getDate()} != null ? *{getLastNotRemovedMessageOrNull().getDate().toLocaleString()} : '') : *{getDate().toLocaleString()}">
+                Дата
+            </div>
+
+            <div class="col-2">
+                <form class="form" th:action="'/delete-theme/' + *{getId()}" method="get">
+                    <button th:attr="disabled=${!isAdmin}"
+                            class="btn btn-danger btn-block btn-sm">Удалить
+                    </button>
+                </form>
+            </div>
+        </a>
+    </div>
+
+    <div th:replace="themes :: new-theme-and-pagination"></div>
 
 </div>
 
 
-
 <!-- Modal -->
-<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel" style="display: none;" aria-hidden="true">
+<div id="exampleModalLive" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="exampleModalLiveLabel"
+     style="display: none;" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -57,7 +94,8 @@
                 <p>Введите название темы</p>
 
 
-                <form class="form-inline" style="margin-top: 20px" id="new-theme" th:action="@{'/new-theme'}" method="post">
+                <form class="form-inline" style="margin-top: 20px" id="new-theme" th:action="@{'/new-theme'}"
+                      method="post">
                     <div class="form-group col-10">
                         <input class="form-control col-12" id="title" name="title">
                     </div>
@@ -73,15 +111,16 @@
 </div>
 
 
-
-
-
-
-
 </body>
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
 <script>
     $('#myModal').on('shown.bs.modal', function () {
         $('#myInput').trigger('focus')

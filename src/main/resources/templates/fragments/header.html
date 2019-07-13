@@ -1,0 +1,46 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <div th:fragment="header-css">
+        <!-- this is header-css -->
+
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta title="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    </div>
+</head>
+<body>
+<div th:fragment="header">
+    <!-- this is header -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-info">
+        <a class="navbar-brand" href="/">Forum</a>
+        <div class="navbar-nav">
+<!--                <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>-->
+<!--                <a class="nav-item nav-link" href="#">Features</a>-->
+<!--                <a class="nav-item nav-link" href="#">Pricing</a>-->
+        </div>
+        <ul class="navbar-nav flex-row ml-md-auto d-none d-md-flex">
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle"
+                   href="#"
+                   id="navbarDropdownMenuLink"
+                   data-toggle="dropdown"
+                   aria-haspopup="true"
+                   aria-expanded="false"
+                   th:text="${currentUser}">
+                    current user
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"  style="min-width: 10px;">
+                    <a class="dropdown-item" href="/perform_logout">Выйти</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</div>
+
+</body>
+</html>
