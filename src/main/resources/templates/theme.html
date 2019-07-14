@@ -31,23 +31,22 @@
         <div class="col-8" style="white-space:pre-wrap" th:text="*{getText()}">Текст сообщения</div>
         <div class="col-1" th:text="*{getDate()} != null ? *{getDate().toLocaleString()} : ''">Дата</div>
         <div class="col-2">
-            <form class="form" th:action="@{'/delete-message/' + ${themeId} + '/' + ${message.getId()}}" method="get">
-                <button th:attr="disabled=${!isAdmin && currentUser == message.getAuthor().getUsername()}"
+            <form class="form" th:action="@{'/themes/' + ${themeId} + '/' + ${message.getId()}}" method="post">
+                <button th:attr="disabled=${!isAdmin && currentUser != message.getAuthor().getUsername()}"
                         class="btn btn-danger btn-block btn-sm">Удалить</button>
             </form>
         </div>
     </div>
 
-
-    <form class="form-inline" style="margin-top: 20px" th:action="@{'/new-message/' + ${themeId}}" method="post">
-        <div class="form-group col-10">
-            <label for="text">Текст сообщения</label>
-            <textarea class="form-control col-12" id="text" name="text"></textarea>
+    <form class="input-group" style="margin-top: 20px; background-color: aliceblue; padding: 20px 0 20px;" th:action="@{'/themes/' + ${themeId} + '/new-message'}" method="post">
+        <div class="input-group-prepend">
+            <span class="input-group-text">Отправка сообщения:</span>
         </div>
-        <button type="submit" class="btn btn-success">Отправить</button>
+        <textarea class="form-control" aria-label="With textarea" name="text" placeholder="Напишите что-нибудь..."></textarea>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="submit">Отправить</button>
+        </div>
     </form>
-
-
 </div>
 
 

@@ -70,6 +70,10 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public Boolean isAdmin() {
+        return Role.ADMIN.equals(role);
+    }
 }
 
 

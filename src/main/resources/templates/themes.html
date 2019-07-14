@@ -48,7 +48,7 @@
 
     <div style="margin-bottom: 20px">
         <a class="row" style="background-color: aliceblue; margin: 5px 0 5px" th:each="theme: ${themes}"
-           th:href="@{'/theme/' + ${theme.getId()}}" th:object="${theme}">
+           th:href="@{'/themes/' + ${theme.getId()}}" th:object="${theme}">
             <div class="col-2" style="padding-top: 5px; padding-bottom: 5px;" th:text="*{getTitle()}">Название темы
             </div>
             <div class="col-2" style="padding-top: 5px; padding-bottom: 5px;"
@@ -64,7 +64,7 @@
             </div>
 
             <div class="col-2">
-                <form class="form" th:action="'/delete-theme/' + *{getId()}" method="get">
+                <form class="form" th:action="'/themes/' + *{getId()}" method="post">
                     <button th:attr="disabled=${!isAdmin}"
                             class="btn btn-danger btn-block btn-sm">Удалить
                     </button>

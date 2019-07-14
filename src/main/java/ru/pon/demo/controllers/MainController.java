@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import ru.pon.demo.entity.Message;
-import ru.pon.demo.entity.Role;
 import ru.pon.demo.entity.Theme;
 import ru.pon.demo.entity.User;
 import ru.pon.demo.model.NewMessage;
@@ -19,6 +18,8 @@ import ru.pon.demo.model.NewTheme;
 import ru.pon.demo.repository.MessageRepository;
 import ru.pon.demo.repository.ThemeRepository;
 import ru.pon.demo.repository.UserRepository;
+import ru.pon.demo.services.MessageService;
+import ru.pon.demo.services.ThemeService;
 import ru.pon.demo.services.UserService;
 
 import java.security.Principal;
@@ -29,42 +30,37 @@ import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
-    private final ThemeRepository themeRepository;
-    private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
+    private final ThemeService themeService;
+    private final MessageService messageService;
 
-    public MainController(ThemeRepository themeRepository, MessageRepository messageRepository, UserRepository userRepository, UserService userService) {
-        this.themeRepository = themeRepository;
-        this.messageRepository = messageRepository;
-        this.userRepository = userRepository;
+    public MainController(UserService userService, ThemeService themeService, MessageService messageService) {
         this.userService = userService;
+        this.themeService = themeService;
+        this.messageService = messageService;
     }
 
     @GetMapping(path = "/")
-    public String themes(ModelMap model, Principal principal) {
-        List<Theme> themes = themeRepository.findByRemoved(false);
-        themes.sort((o1, o2) -> {
-            Date o1LastVisibleChange = o1.getLastNotRemovedMessageOrNull() != null
-                    ? o1.getLastNotRemovedMessageOrNull().getDate()
-                    : o1.getDate();
-            Date o2LastVisibleChange = o2.getLastNotRemovedMessageOrNull() != null
-                    ? o2.getLastNotRemovedMessageOrNull().getDate()
-                    : o2.getDate();
+    public String main() {
+        return "redirect:/themes";
+    }
 
-            return o2LastVisibleChange.compareTo(o1LastVisibleChange);
-        });
+    @GetMapping(path = "/themes")
+    public String themes(ModelMap model, Principal principal) {
+        List<Theme> themes = themeService.getNotRemovedSortedThemes();
 
         model.addAttribute("themes", themes);
         model.addAttribute("currentUser", principal.getName());
-        model.addAttribute("isAdmin", userService.getUser(principal.getName()).getRole() == Role.ADMIN);
+        model.addAttribute("isAdmin", userService.getUser(principal.getName()).isAdmin());
         return "themes";
     }
 
-    @GetMapping(path = "/theme/{theme_id}")
+    @GetMapping(path = "/themes/{theme_id}")
     public String theme(ModelMap model, Principal principal, @PathVariable("theme_id") Long themeId) {
-        Theme theme = themeRepository.findByIdAndRemoved(themeId, false);
-            String themeName = theme.getTitle();
+        Theme theme = themeService.getByIdAndRemoved(themeId, false);
+
+        String themeName = theme.getTitle();
+
         String author = theme.getAuthor().getFirstName() + " " + theme.getAuthor().getLastName();
 
         List<Message> messages = theme.getMessages().stream()
@@ -73,7 +69,7 @@ public class MainController {
                 .collect(Collectors.toList());
 
         model.addAttribute("currentUser", principal.getName());
-        model.addAttribute("isAdmin", userService.getUser(principal.getName()).getRole() == Role.ADMIN);
+        model.addAttribute("isAdmin", userService.getUser(principal.getName()).isAdmin());
 
         model.addAttribute("themeName", themeName);
         model.addAttribute("author", author);
@@ -82,50 +78,38 @@ public class MainController {
         return "theme";
     }
 
-    @GetMapping(path = "/delete-message/{themeId}/{messageId}")
+    @PostMapping(path = "/themes/{themeId}/{messageId}")
     public String deleteMessage(ModelMap model, Principal principal, @PathVariable("themeId") Long themeId, @PathVariable("messageId") Long messageId) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getUser(auth.getName());
 
-        Message message = messageRepository.findByIdAndRemoved(messageId, false);
-        if (message != null) {
+        User messageAuthor = messageService.getByIdAndRemoved(messageId, false).getAuthor();
 
-            if (message.getAuthor().equals(currentUser)) {
-                message.setRemoved(true);
-                messageRepository.saveAndFlush(message);
-            } else {
-                model.addAttribute("errorMessage", "У вас недостаточно прав для этого действия");
-                return theme(model, principal, themeId);
-            }
+        if (messageAuthor.equals(currentUser)) {
+            messageService.deleteMessage(messageId);
         }
-        return ";";
+
+        return "redirect:/themes/" + themeId;
     }
 
-    @GetMapping(path = "/delete-theme/{themeId}")
+    @PostMapping(path = "themes/{themeId}")
     public String deleteTheme(ModelMap model, Principal principal, @PathVariable("themeId") Long themeId) {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userService.getUser(auth.getName());
 
-        if (currentUser.getRole() != Role.ADMIN) {
-            Theme theme = themeRepository.findByIdAndRemoved(themeId, false);
-
-            if (theme != null) {
-                theme.setRemoved(true);
-                themeRepository.saveAndFlush(theme);
-            }
-        } else {
-            model.addAttribute("errorMessage", "У вас недостаточно прав для этого действия");
+        if (currentUser.isAdmin()) {
+            themeService.delete(themeId);
         }
 
-        return "redirect:/";
+        return "redirect:/themes";
     }
 
-    @PostMapping(path = "/new-message/{themeId}")
+    @PostMapping(path = "/themes/{themeId}/new-message")
     public String newMessage(ModelMap model, Principal principal, @PathVariable Long themeId, @ModelAttribute NewMessage newMessage) throws NotFoundException {
         if (newMessage == null || newMessage.getText() == null || newMessage.getText().isEmpty()) {
-            return "redirect:/theme/" + themeId;
+            return "redirect:/themes/" + themeId;
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -136,21 +120,21 @@ public class MainController {
         message.setText(newMessage.getText());
         message.setDate(new Date());
         message.setRemoved(false);
-        messageRepository.saveAndFlush(message);
+        messageService.save(message);
 
-        Theme theme = themeRepository.findById(themeId).orElseThrow(() -> new NotFoundException("theme not found"));
+        Theme theme = themeService.getByIdAndRemoved(themeId, false);
 
         theme.getMessages().add(message);
-        themeRepository.saveAndFlush(theme);
+        themeService.save(theme);
 
-        return "redirect:/theme/" + themeId;
+        return "redirect:/themes/" + themeId;
     }
 
 
     @PostMapping(path = "/new-theme")
     public String newTheme(ModelMap model, Principal principal, @ModelAttribute NewTheme newTheme)   {
         if (newTheme == null || newTheme.getTitle() == null || newTheme.getTitle().isEmpty()) {
-            return "redirect:/";
+            return "redirect:/themes";
         }
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -162,9 +146,9 @@ public class MainController {
         theme.setDate(new Date());
         theme.setRemoved(false);
 
-        theme = themeRepository.saveAndFlush(theme);
+        Long themeId = themeService.save(theme);
 
-        return "redirect:/theme/" + theme.getId();
+        return "redirect:/themes/" + themeId;
     }
 
 }
