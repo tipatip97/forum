@@ -22,14 +22,16 @@
 
         <nav aria-label="Page navigation example" class="col align-self-end">
             <ul class="pagination justify-content-end">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                <li class="page-item" th:classappend="${currentPage <= 1} ? disabled">
+                    <a class="page-link" href="#" th:href="@{/themes/(current-page = ${currentPage - 1})}" tabindex="-1">Previous</a>
                 </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">Next</a>
+                <li class="page-item"><a class="page-link" id="minusTwo" th:hidden="${currentPage <= 2 || currentPage != pagesCount}" th:href="@{/themes/(current-page = ${currentPage - 2})}" th:text="${currentPage - 2}">-2</a></li>
+                <li class="page-item"><a class="page-link" id="minusOne" th:hidden="${currentPage <= 1}" th:href="@{/themes/(current-page = ${currentPage - 1})}" th:text="${currentPage - 1}">-1</a></li>
+                <li class="page-item"><a class="page-link" id="one" style="font-weight: bold" th:href="@{/themes/(current-page = ${currentPage})}" th:text="${currentPage}">1</a></li>
+                <li class="page-item"><a class="page-link" id="plusOne" th:hidden="${currentPage >= pagesCount}" th:href="@{/themes/(current-page = ${currentPage + 1})}" th:text="${currentPage + 1}">1</a></li>
+                <li class="page-item"><a class="page-link" id="plusTwo" th:hidden="${currentPage > 1 || currentPage >= (pagesCount -1)}" th:href="@{/themes/(current-page = ${currentPage + 2})}" th:text="${currentPage + 2}">1</a></li>
+                <li class="page-item" th:classappend="${currentPage >= pagesCount} ? disabled">
+                    <a class="page-link" href="#" th:href="@{/themes/(current-page = ${currentPage + 1})}">Next</a>
                 </li>
             </ul>
         </nav>

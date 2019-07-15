@@ -38,6 +38,22 @@
         </div>
     </div>
 
+    <nav aria-label="Page navigation example" class="col align-self-end">
+        <ul class="pagination justify-content-end">
+            <li class="page-item" th:classappend="${currentPage <= 1} ? disabled">
+                <a class="page-link" href="#" th:href="@{/themes/{themeId}/(current-page = ${currentPage - 1})}" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-item"><a class="page-link" id="minusTwo" th:hidden="${currentPage <= 2 || currentPage != pagesCount}" th:href="@{/themes/{themeId}/(current-page = ${currentPage - 2}, themeId = ${themeId})}" th:text="${currentPage - 2}">-2</a></li>
+            <li class="page-item"><a class="page-link" id="minusOne" th:hidden="${currentPage <= 1}" th:href="@{/themes/{themeId}/(current-page = ${currentPage - 1}, themeId = ${themeId})}" th:text="${currentPage - 1}">-1</a></li>
+            <li class="page-item"><a class="page-link" id="one" style="font-weight: bold" th:href="@{/themes/{themeId}/(current-page = ${currentPage}, themeId = ${themeId})}" th:text="${currentPage}">1</a></li>
+            <li class="page-item"><a class="page-link" id="plusOne" th:hidden="${currentPage >= pagesCount}" th:href="@{/themes/{themeId}/(current-page = ${currentPage + 1}, themeId = ${themeId})}" th:text="${currentPage + 1}">1</a></li>
+            <li class="page-item"><a class="page-link" id="plusTwo" th:hidden="${currentPage > 1 || currentPage >= (pagesCount -1)}" th:href="@{/themes/{themeId}/(current-page = ${currentPage + 2}, themeId = ${themeId})}" th:text="${currentPage + 2}">1</a></li>
+            <li class="page-item" th:classappend="${currentPage >= pagesCount} ? disabled">
+                <a class="page-link" href="#" th:href="@{/themes/{themeId}/(current-page = ${currentPage + 1})}">Next</a>
+            </li>
+        </ul>
+    </nav>
+
     <form class="input-group" style="margin-top: 20px; background-color: aliceblue; padding: 20px 0 20px;" th:action="@{'/themes/' + ${themeId} + '/new-message'}" method="post">
         <div class="input-group-prepend">
             <span class="input-group-text">Отправка сообщения:</span>

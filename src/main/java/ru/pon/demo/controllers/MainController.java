@@ -1,23 +1,16 @@
 package ru.pon.demo.controllers;
 
 import javassist.NotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.pon.demo.entity.Message;
 import ru.pon.demo.entity.Theme;
 import ru.pon.demo.entity.User;
 import ru.pon.demo.model.NewMessage;
 import ru.pon.demo.model.NewTheme;
-import ru.pon.demo.repository.MessageRepository;
-import ru.pon.demo.repository.ThemeRepository;
-import ru.pon.demo.repository.UserRepository;
 import ru.pon.demo.services.MessageService;
 import ru.pon.demo.services.ThemeService;
 import ru.pon.demo.services.UserService;
@@ -46,18 +39,34 @@ public class MainController {
     }
 
     @GetMapping(path = "/themes")
-    public String themes(ModelMap model, Principal principal) {
+    public String themes(ModelMap model, Principal principal,
+                         @RequestParam(name = "items-count", defaultValue = "10") Integer itemsCount,
+                         @RequestParam(name = "current-page", defaultValue = "1") Integer currentPage) {
         List<Theme> themes = themeService.getNotRemovedSortedThemes();
 
-        model.addAttribute("themes", themes);
+
+
+        int firstElementIndex = itemsCount * (currentPage - 1);
+        int lastElementIndex = firstElementIndex  + itemsCount <= themes.size() ? firstElementIndex  + itemsCount : themes.size();
+        List<Theme> paginatedThemes = themes.subList(firstElementIndex, lastElementIndex);
+
+        model.addAttribute("pagesCount", (int) Math.ceil((double) themes.size()/itemsCount));
+        model.addAttribute("currentPage", currentPage);
+
+        model.addAttribute("themes", paginatedThemes);
         model.addAttribute("currentUser", principal.getName());
         model.addAttribute("isAdmin", userService.getUser(principal.getName()).isAdmin());
         return "themes";
     }
 
     @GetMapping(path = "/themes/{theme_id}")
-    public String theme(ModelMap model, Principal principal, @PathVariable("theme_id") Long themeId) {
+    public String theme(ModelMap model, Principal principal,
+                        @PathVariable("theme_id") Long themeId,
+                        @RequestParam(name = "items-count", defaultValue = "10") Integer itemsCount,
+                        @RequestParam(name = "current-page", defaultValue = "1") Integer currentPage) {
         Theme theme = themeService.getByIdAndRemoved(themeId, false);
+
+
 
         String themeName = theme.getTitle();
 
@@ -68,13 +77,21 @@ public class MainController {
                 .sorted(Comparator.comparing(Message::getDate))
                 .collect(Collectors.toList());
 
+        model.addAttribute("pagesCount", (int) Math.ceil((double) messages.size()/itemsCount));
+        model.addAttribute("currentPage", currentPage);
+
+        int firstElementIndex = itemsCount * (currentPage - 1);
+        int lastElementIndex = firstElementIndex  + itemsCount <= messages.size() ? firstElementIndex  + itemsCount : messages.size();
+        List<Message> paginatedMessages = messages.subList(firstElementIndex, lastElementIndex);
+
+
         model.addAttribute("currentUser", principal.getName());
         model.addAttribute("isAdmin", userService.getUser(principal.getName()).isAdmin());
 
         model.addAttribute("themeName", themeName);
         model.addAttribute("author", author);
         model.addAttribute("themeId", themeId);
-        model.addAttribute("messages", messages);
+        model.addAttribute("messages", paginatedMessages);
         return "theme";
     }
 
