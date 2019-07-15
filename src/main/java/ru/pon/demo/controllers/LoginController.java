@@ -48,6 +48,8 @@ public class LoginController {
             return "redirect:/login";
         }
 
-        return "redirect:/registration?error=true";
+        model.addAttribute("matchingPassword", userDTO.getPassword().equals(userDTO.getMatchingPassword()));
+
+        return "registration";
     }
 }

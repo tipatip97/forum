@@ -18,35 +18,39 @@
                 <div class="form-group">
                     <label>Имя:</label>
                     <input class="form-control"
+                           th:classappend="${#fields.errors('firstName').isEmpty()} ? 'is-valid' : 'is-invalid'"
                            placeholder="Введите имя..."
                            th:field="*{firstName}"/>
-                    <p th:each="error: ${#fields.errors('firstName')}"
+                    <p class="invalid-feedback" th:each="error: ${#fields.errors('firstName')}"
                        th:text="${error}">Validation error</p>
                 </div>
                 <div class="form-group">
                     <label>Фамилия:</label>
                     <input class="form-control"
+                           th:classappend="${#fields.errors('lastName').isEmpty()} ? 'is-valid' : 'is-invalid'"
                            placeholder="Введите фамилию..."
                            th:field="*{lastName}"/>
-                    <p th:each="error : ${#fields.errors('lastName')}"
+                    <p class="invalid-feedback" th:each="error : ${#fields.errors('lastName')}"
                        th:text="${error}">Validation error</p>
                 </div>
                 <div class="form-group">
                     <label>Логин:</label>
                     <input class="form-control"
+                           th:classappend="${#fields.errors('username').isEmpty()} ? 'is-valid' : 'is-invalid'"
                            type="text"
                            th:field="*{username}"
                            placeholder="Введите логин..."/>
-                    <p th:each="error : ${#fields.errors('username')}"
+                    <p class="invalid-feedback" th:each="error : ${#fields.errors('username')}"
                        th:text="${error}">Validation error</p>
                 </div>
                 <div class="form-group">
                     <label>Пароль:</label>
                     <input class="form-control"
                            type="password"
+                           th:classappend="${#fields.errors('password').isEmpty()} ? 'is-valid' : 'is-invalid'"
                            th:field="*{password}"
                            placeholder="Введите пароль..."/>
-                    <p th:each="error : ${#fields.errors('password')}"
+                    <p class="invalid-feedback" th:each="error : ${#fields.errors('password')}"
                        th:text="${error}">Validation error</p>
                 </div>
                 <div class="form-group">
@@ -54,8 +58,12 @@
                     <label>Подтверждение пароля:</label>
                     <input class="form-control"
                            type="password"
+                           th:classappend="${#fields.errors('matchingPassword').isEmpty()} ? 'is-valid' : 'is-invalid'"
                            th:field="*{matchingPassword}"
                            placeholder="Введите пароль..."/>
+                    <p class="invalid-feedback" th:each="error : ${#fields.errors('matchingPassword')}"
+                       th:text="${error}">Validation error</p>
+                    <p class="invalid-feedback" th:if="${!matchingPassword}">Пароли не совпадают</p>
                 </div>
                 <div class="form-group">
                     <div class="row">

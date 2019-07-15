@@ -10,21 +10,23 @@ import javax.validation.constraints.NotNull;
 public class UserDTO {
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Не может быть пустым")
     private String firstName;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Не может быть пустым")
     private String lastName;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Не может быть пустым")
     private String username;
 
     @NotNull
-    @NotEmpty
+    @NotEmpty(message = "Не может быть пустым")
     @ValidPassword
     private String password;
+
+    @NotEmpty(message = "Не может быть пустым")
     private String matchingPassword;
 
     public String getFirstName() {
