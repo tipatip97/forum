@@ -63,7 +63,7 @@
                            placeholder="Введите пароль..."/>
                     <p class="invalid-feedback" th:each="error : ${#fields.errors('matchingPassword')}"
                        th:text="${error}">Validation error</p>
-                    <p class="invalid-feedback" th:if="${!matchingPassword}">Пароли не совпадают</p>
+                    <p class="invalid-feedback" th:if="${matchingPassword == null || !matchingPassword}">Пароли не совпадают</p>
                 </div>
                 <div class="form-group">
                     <div class="row">
