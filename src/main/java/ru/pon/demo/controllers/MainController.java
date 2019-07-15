@@ -46,7 +46,7 @@ public class MainController {
 
 
 
-        int firstElementIndex = itemsCount * (currentPage - 1);
+        int firstElementIndex = itemsCount * (currentPage - 1) <= themes.size() ? itemsCount * (currentPage - 1) : themes.size();
         int lastElementIndex = firstElementIndex  + itemsCount <= themes.size() ? firstElementIndex  + itemsCount : themes.size();
         List<Theme> paginatedThemes = themes.subList(firstElementIndex, lastElementIndex);
 
@@ -80,7 +80,7 @@ public class MainController {
         model.addAttribute("pagesCount", (int) Math.ceil((double) messages.size()/itemsCount));
         model.addAttribute("currentPage", currentPage);
 
-        int firstElementIndex = itemsCount * (currentPage - 1);
+        int firstElementIndex = itemsCount * (currentPage - 1) <= messages.size() ? itemsCount * (currentPage - 1) : messages.size();
         int lastElementIndex = firstElementIndex  + itemsCount <= messages.size() ? firstElementIndex  + itemsCount : messages.size();
         List<Message> paginatedMessages = messages.subList(firstElementIndex, lastElementIndex);
 
@@ -124,27 +124,30 @@ public class MainController {
     }
 
     @PostMapping(path = "/themes/{themeId}/new-message")
-    public String newMessage(ModelMap model, Principal principal, @PathVariable Long themeId, @ModelAttribute NewMessage newMessage) throws NotFoundException {
-        if (newMessage == null || newMessage.getText() == null || newMessage.getText().isEmpty()) {
-            return "redirect:/themes/" + themeId;
+    public String newMessage(ModelMap model, Principal principal,
+                             @PathVariable Long themeId,
+                             @ModelAttribute NewMessage newMessage,
+                             @RequestParam(name = "items-count", defaultValue = "10") Integer itemsCount,
+                             @RequestParam(name = "current-page", defaultValue = "1") Integer currentPage) throws NotFoundException {
+
+        if (newMessage != null && newMessage.getText() != null && !newMessage.getText().isEmpty()) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = userService.getUser(auth.getName());
+
+            Message message = new Message();
+            message.setAuthor(currentUser);
+            message.setText(newMessage.getText());
+            message.setDate(new Date());
+            message.setRemoved(false);
+            messageService.save(message);
+
+            Theme theme = themeService.getByIdAndRemoved(themeId, false);
+
+            theme.getMessages().add(message);
+            themeService.save(theme);
         }
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userService.getUser(auth.getName());
-
-        Message message = new Message();
-        message.setAuthor(currentUser);
-        message.setText(newMessage.getText());
-        message.setDate(new Date());
-        message.setRemoved(false);
-        messageService.save(message);
-
-        Theme theme = themeService.getByIdAndRemoved(themeId, false);
-
-        theme.getMessages().add(message);
-        themeService.save(theme);
-
-        return "redirect:/themes/" + themeId;
+        return theme(model, principal, themeId, itemsCount, currentPage);
     }
 
 
